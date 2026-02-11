@@ -1,0 +1,1290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MiniShop — Single File E-Commerce + Admin</title>
+
+  <style>
+    :root{
+      --bg:#0b1220;
+      --glass: rgba(255,255,255,.06);
+      --card: rgba(255,255,255,.07);
+      --border: rgba(255,255,255,.12);
+      --text:#eaf0ff;
+      --muted:#9bb0da;
+      --accent:#6aa8ff;
+      --accent2:#7cdaff;
+      --danger:#ff6a7a;
+      --ok:#2ee59d;
+      --shadow: 0 16px 44px rgba(0,0,0,.40);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% -10%, rgba(106,168,255,.25), transparent 55%),
+        radial-gradient(1000px 600px at 90% 10%, rgba(124,218,255,.20), transparent 55%),
+        radial-gradient(900px 600px at 50% 110%, rgba(255,106,122,.12), transparent 55%),
+        var(--bg);
+      min-height:100vh;
+    }
+
+    header{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(12px);
+      background: linear-gradient(to bottom, rgba(11,18,32,.92), rgba(11,18,32,.70));
+      border-bottom:1px solid var(--border);
+    }
+
+    .wrap{max-width:1120px;margin:0 auto;padding:18px}
+    .topbar{
+      max-width:1120px; margin:0 auto;
+      padding:14px 18px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{
+      width:42px;height:42px;border-radius:14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 14px 28px rgba(106,168,255,.22);
+    }
+    .brandTitle{font-size:18px;font-weight:900;letter-spacing:.3px}
+    .brandSub{font-size:12px;color:var(--muted);margin-top:2px}
+
+    .actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .btn{
+      border:1px solid var(--border);
+      background: var(--glass);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      cursor:pointer;
+      transition: .18s transform, .18s background, .18s border;
+      user-select:none;
+      display:inline-flex; align-items:center; gap:8px;
+      text-decoration:none;
+    }
+    .btn:hover{transform: translateY(-1px); background: rgba(255,255,255,.10)}
+    .btn.primary{
+      border:0;
+      font-weight:900;
+      color:#081027;
+      background: linear-gradient(135deg, rgba(106,168,255,.95), rgba(124,218,255,.9));
+    }
+    .btn.danger{border-color: rgba(255,106,122,.35); background: rgba(255,106,122,.10)}
+    .btn.ok{border-color: rgba(46,229,157,.30); background: rgba(46,229,157,.10)}
+    .pill{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:2px 10px; border-radius:999px;
+      background: rgba(255,255,255,.10);
+      border:1px solid var(--border);
+      font-size:12px; color:var(--text);
+    }
+    .muted{color:var(--muted)}
+
+    .controls{
+      max-width:1120px; margin:0 auto;
+      padding:0 18px 16px;
+      display:grid;
+      grid-template-columns: 1.2fr .6fr .6fr;
+      gap:10px;
+    }
+    .field{
+      display:flex;align-items:center;gap:10px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      border-radius:16px;
+      padding:10px 12px;
+    }
+    .field input,.field select{
+      width:100%;
+      background:transparent;
+      border:0;
+      outline:0;
+      color:var(--text);
+      font-size:14px;
+    }
+    .field select option{color:#0b1220}
+    .hint{max-width:1120px;margin:0 auto;padding:0 18px 14px;font-size:12px;color:var(--muted)}
+
+    main{padding:18px}
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:14px;
+    }
+    .card{
+      grid-column: span 4;
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+      border-radius: var(--radius);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      transition: .18s transform, .18s border;
+      display:flex; flex-direction:column;
+      min-height: 360px;
+    }
+    .card:hover{transform: translateY(-4px); border-color: rgba(124,218,255,.35)}
+    .thumb{
+      height:175px; position:relative; overflow:hidden; cursor:pointer;
+      border-bottom:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+    }
+    .thumb img{
+      width:100%;height:100%;object-fit:cover;display:block;
+      transform: scale(1.02);
+      filter:saturate(1.05) contrast(1.03);
+    }
+    .badge{
+      position:absolute; left:12px; top:12px;
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(10,16,32,.70);
+      border:1px solid var(--border);
+      display:flex; align-items:center; gap:8px;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:50%;
+      background: var(--ok);
+      box-shadow: 0 0 0 4px rgba(46,229,157,.15);
+    }
+
+    .content{padding:12px 12px 14px;display:flex;flex-direction:column;gap:10px;flex:1}
+    .title{font-weight:900;font-size:16px;line-height:1.2}
+    .desc{color:var(--muted);font-size:13px;line-height:1.35;min-height:38px}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .price{font-weight:950;font-size:16px}
+    .strike{font-size:12px;color:var(--muted);text-decoration:line-through;margin-left:6px;font-weight:700}
+    .meta{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{
+      font-size:12px; color:var(--muted);
+      background: rgba(255,255,255,.05);
+      border:1px solid var(--border);
+      padding:6px 10px;
+      border-radius:999px;
+    }
+    .empty{
+      grid-column: 1 / -1;
+      padding:22px;
+      border:1px dashed rgba(255,255,255,.18);
+      border-radius: var(--radius);
+      color:var(--muted);
+      text-align:center;
+      background: rgba(255,255,255,.03);
+    }
+
+    .overlay{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      display:none; z-index:60;
+    }
+    .overlay.show{display:block}
+
+    .drawer{
+      position:fixed; right:0; top:0; height:100vh; width:min(420px, 92vw);
+      background: linear-gradient(180deg, rgba(17,27,49,.98), rgba(10,16,32,.98));
+      border-left:1px solid var(--border);
+      box-shadow: -20px 0 50px rgba(0,0,0,.45);
+      transform: translateX(110%);
+      transition: .25s transform;
+      z-index:70;
+      display:flex; flex-direction:column;
+    }
+    .drawer.show{transform: translateX(0)}
+    .drawerHead{
+      padding:16px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      border-bottom:1px solid var(--border);
+    }
+    .drawerBody{padding:14px 16px; overflow:auto; flex:1}
+    .drawerFoot{
+      padding:14px 16px;
+      border-top:1px solid var(--border);
+      background: rgba(0,0,0,.15);
+    }
+
+    .cartItem{
+      display:grid;
+      grid-template-columns: 64px 1fr;
+      gap:12px;
+      padding:12px;
+      border:1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(255,255,255,.04);
+      margin-bottom:10px;
+    }
+    .cartItem img{
+      width:64px;height:64px;border-radius:14px;
+      object-fit:cover;border:1px solid var(--border)
+    }
+    .cartItem .name{font-weight:900; line-height:1.2}
+    .cartItem .sub{font-size:12px;color:var(--muted)}
+    .qtyRow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px}
+    .qty{
+      display:flex; align-items:center; gap:8px;
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding:6px 8px;
+      background: rgba(255,255,255,.04);
+    }
+    .qty button{
+      width:28px;height:28px;border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      cursor:pointer;
+    }
+    .totals{display:flex; align-items:center; justify-content:space-between; margin:10px 0 14px}
+    .hr{height:1px;background:var(--border); margin:12px 0}
+
+    .checkout{
+      display:none;
+      border:1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(255,255,255,.03);
+      padding:12px;
+      margin-top:12px;
+    }
+    .checkout.show{display:block}
+    .checkout label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px}
+    .checkout input,.checkout textarea,.checkout select{
+      width:100%;
+      padding:10px 12px;
+      border-radius: 12px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      outline:0;
+      resize:vertical;
+    }
+
+    .modalOverlay{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.65);
+      display:none; z-index:80;
+      padding:18px;
+      overflow:auto;
+    }
+    .modalOverlay.show{display:block}
+    .modalCard{
+      max-width:920px;
+      margin:42px auto;
+      border-radius: 22px;
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(17,27,49,.98), rgba(10,16,32,.98));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .modalClose{
+      position:absolute; right:14px; top:14px;
+      width:42px;height:42px;border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.08);
+      color:var(--text);
+      cursor:pointer;
+      font-weight:900;
+    }
+    .modalGrid{display:grid; grid-template-columns: 1.1fr .9fr;}
+    .modalImg{height:370px; background: rgba(255,255,255,.04)}
+    .modalImg img{width:100%;height:100%;object-fit:cover;display:block}
+    .modalBody{padding:16px}
+    .modalTitle{font-size:22px;font-weight:950}
+    .modalDesc{color:var(--muted);line-height:1.45;margin-top:8px}
+    .modalMeta{margin-top:10px; display:flex; gap:8px; flex-wrap:wrap}
+
+    /* Admin modal */
+    .adminGrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+      padding:16px;
+    }
+    .adminRow{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .adminRow .field{border-radius:14px}
+    .adminActions{display:flex;gap:10px;flex-wrap:wrap}
+    .table{
+      width:100%;
+      border-collapse: collapse;
+      overflow:hidden;
+      border-radius: 16px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+    }
+    .table th,.table td{
+      padding:10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      text-align:left;
+      font-size:13px;
+    }
+    .table th{color:var(--muted);font-weight:800}
+    .table td{vertical-align:top}
+    .small{font-size:12px;color:var(--muted)}
+
+    .toast{
+      position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+      background: rgba(10,16,32,.92);
+      border:1px solid var(--border);
+      padding:10px 12px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      display:none; z-index:200;
+      font-size:13px;
+    }
+    .toast.show{display:block}
+
+    @media (max-width: 920px){
+      .card{grid-column: span 6}
+      .controls{grid-template-columns: 1fr 1fr}
+      .controls .field:first-child{grid-column:1/-1}
+      .modalGrid{grid-template-columns:1fr}
+      .modalImg{height:300px}
+      .adminRow{grid-template-columns:1fr}
+    }
+    @media (max-width: 560px){
+      .card{grid-column: span 12}
+      .controls{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <div class="brandTitle">MiniShop <span class="pill">Admin + 20 Products</span></div>
+          <div class="brandSub">Search • Filter • Sort • Cart • Checkout • Admin Panel (demo)</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="btnAdmin">🛠 Admin</button>
+        <button class="btn" id="btnOrders">📦 Orders</button>
+        <button class="btn primary" id="btnCart">🛒 Cart <span class="pill" id="cartCount">0</span></button>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="field">🔎 <input id="q" placeholder="Search products (watch, bottle, laptop...)" autocomplete="off" /></div>
+      <div class="field">🧩 <select id="category"></select></div>
+      <div class="field">↕️
+        <select id="sort">
+          <option value="featured">Featured</option>
+          <option value="priceAsc">Price: Low → High</option>
+          <option value="priceDesc">Price: High → Low</option>
+          <option value="nameAsc">Name: A → Z</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="hint">
+      Tip: Product image click = details. Admin panel me add/edit/delete. (Password: <b>admin123</b>)
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="grid" id="grid"></div>
+  </main>
+
+  <!-- Cart Overlay + Drawer -->
+  <div class="overlay" id="overlay"></div>
+
+  <aside class="drawer" id="drawer">
+    <div class="drawerHead">
+      <div style="display:flex;align-items:center;gap:10px">
+        <strong style="font-size:18px;">Your Cart</strong>
+        <span class="pill muted" id="cartItemsPill">0 items</span>
+      </div>
+      <button class="btn" id="btnCloseCart">✕</button>
+    </div>
+
+    <div class="drawerBody">
+      <div id="cartList"></div>
+
+      <div class="checkout" id="checkoutBox">
+        <div class="muted" style="font-size:12px;margin-bottom:6px;">Checkout (Demo)</div>
+
+        <label>Name</label>
+        <input id="ckName" placeholder="Your name" />
+
+        <label>Phone</label>
+        <input id="ckPhone" placeholder="10-digit mobile" inputmode="numeric" />
+
+        <label>Address</label>
+        <textarea id="ckAddress" rows="3" placeholder="Delivery address"></textarea>
+
+        <label>Payment</label>
+        <select id="ckPay">
+          <option value="COD">Cash on Delivery</option>
+          <option value="UPI">UPI (demo)</option>
+          <option value="CARD">Card (demo)</option>
+        </select>
+
+        <div class="hr"></div>
+        <button class="btn primary" id="btnPlaceOrder">Place Order</button>
+        <button class="btn danger" id="btnClearCart" style="margin-top:8px;">Clear Cart</button>
+      </div>
+
+      <div class="empty" id="cartEmpty" style="display:none;">Cart is empty. Add products 🙂</div>
+    </div>
+
+    <div class="drawerFoot">
+      <div class="totals">
+        <div>
+          <div class="muted">Subtotal</div>
+          <div style="font-weight:950;font-size:18px;" id="subtotal">₹0</div>
+        </div>
+        <button class="btn primary" id="btnCheckout">Checkout</button>
+      </div>
+      <div class="muted" style="font-size:12px;">Orders saved in localStorage.</div>
+    </div>
+  </aside>
+
+  <!-- Product Modal -->
+  <div class="modalOverlay" id="modalOverlay">
+    <div class="modalCard">
+      <button class="modalClose" id="modalClose">✕</button>
+      <div class="modalGrid">
+        <div class="modalImg"><img id="mImg" alt=""></div>
+        <div class="modalBody">
+          <div class="modalTitle" id="mTitle"></div>
+          <div class="modalMeta">
+            <span class="pill" id="mCategory"></span>
+            <span class="pill" id="mRating"></span>
+            <span class="pill" id="mStock"></span>
+          </div>
+          <div style="margin-top:12px;">
+            <span class="price" id="mPrice"></span>
+            <span class="strike" id="mMrp"></span>
+          </div>
+          <p class="modalDesc" id="mDesc"></p>
+          <div class="modalMeta" id="mTags"></div>
+
+          <div style="display:flex; gap:10px; margin-top:14px;">
+            <button class="btn" id="btnModalAdd" style="flex:1;">Add to Cart</button>
+            <button class="btn primary" id="btnModalCart" style="flex:1;">Go to Cart</button>
+          </div>
+
+          <div class="muted" style="font-size:12px;margin-top:12px;">
+            Demo store • Single file • No backend
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Modal -->
+  <div class="modalOverlay" id="adminOverlay">
+    <div class="modalCard">
+      <button class="modalClose" id="adminClose">✕</button>
+
+      <div class="adminGrid">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:20px;font-weight:950;">Admin Panel</div>
+            <div class="small">Add / Edit / Delete Products (Saved in localStorage)</div>
+          </div>
+          <div class="adminActions">
+            <button class="btn ok" id="btnAdminLogin">🔐 Login</button>
+            <button class="btn danger" id="btnAdminLogout">Logout</button>
+            <button class="btn" id="btnResetDemo">↻ Reset Demo Products</button>
+          </div>
+        </div>
+
+        <div class="field">🔑 <input id="adminPass" placeholder="Enter admin password (admin123)" /></div>
+        <div class="small">Note: This is demo security (only front-end). Real projects need backend authentication.</div>
+
+        <div style="border:1px solid var(--border);border-radius:16px;padding:14px;background:rgba(255,255,255,.03)">
+          <div style="font-weight:900;margin-bottom:10px;">Add / Edit Product</div>
+
+          <div class="adminRow">
+            <div class="field">🆔 <input id="pId" placeholder="ID (leave empty for auto)" /></div>
+            <div class="field">🏷️ <input id="pName" placeholder="Name" /></div>
+          </div>
+
+          <div class="adminRow">
+            <div class="field">🧩 <input id="pCategory" placeholder="Category (e.g., Electronics)" /></div>
+            <div class="field">🖼️ <input id="pImg" placeholder="Image URL (https://...)" /></div>
+          </div>
+
+          <div class="adminRow">
+            <div class="field">₹ <input id="pPrice" placeholder="Price" inputmode="numeric" /></div>
+            <div class="field">₹ <input id="pMrp" placeholder="MRP" inputmode="numeric" /></div>
+          </div>
+
+          <div class="adminRow">
+            <div class="field">⭐ <input id="pRating" placeholder="Rating (0-5)" inputmode="decimal" /></div>
+            <div class="field">📦 <input id="pStock" placeholder="Stock" inputmode="numeric" /></div>
+          </div>
+
+          <div class="field">📝 <input id="pTags" placeholder="Tags (comma separated)" /></div>
+          <div class="field">📝 <input id="pDesc" placeholder="Description" /></div>
+
+          <div class="adminActions" style="margin-top:10px;">
+            <button class="btn primary" id="btnSaveProduct">Save Product</button>
+            <button class="btn" id="btnClearForm">Clear</button>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-weight:900;margin:12px 0 8px;">All Products</div>
+          <table class="table" id="adminTable"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* ===== Keys ===== */
+    var KEY_PRODUCTS = "minishop_products_admin_v1";
+    var KEY_CART = "minishop_cart_admin_v1";
+    var KEY_ORDERS = "minishop_orders_admin_v1";
+    var KEY_ADMIN = "minishop_admin_loggedin_v1";
+
+    /* ===== Demo password ===== */
+    var ADMIN_PASSWORD = "admin123";
+
+    function formatINR(n){
+      n = Math.round(Number(n) || 0);
+      return "₹" + n.toLocaleString("en-IN");
+    }
+
+    /* ===== 20+ Products ===== */
+    var demoProducts = [
+      { id:"p1", name:"Aero Running Shoes", category:"Fashion", price:1799, mrp:2499, rating:4.4, stock:12, tags:["Lightweight","Breathable","Daily use"],
+        desc:"Cushioned running shoes with breathable mesh upper and grippy outsole for everyday comfort.",
+        img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p2", name:"Noise-Cancel Headphones", category:"Electronics", price:2999, mrp:3999, rating:4.6, stock:8, tags:["ANC","30h battery","Type-C"],
+        desc:"Over-ear headphones with active noise cancellation and warm sound signature.",
+        img:"https://images.unsplash.com/photo-1518441313568-0ed37e60b0a9?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p3", name:"Minimal Wrist Watch", category:"Fashion", price:1499, mrp:1999, rating:4.2, stock:15, tags:["Water resistant","Slim dial","Classic"],
+        desc:"A clean, minimalist analog watch that pairs well with any outfit.",
+        img:"https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p4", name:"Ergo Office Chair", category:"Home", price:6499, mrp:7999, rating:4.3, stock:5, tags:["Lumbar support","Adjustable","Breathable"],
+        desc:"Ergonomic chair for long work/study sessions with comfort support.",
+        img:"https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p5", name:"Stainless Steel Bottle", category:"Home", price:599, mrp:899, rating:4.5, stock:25, tags:["Hot/Cold","Leak-proof","750ml"],
+        desc:"Insulated bottle keeps drinks cold for hours. Perfect for college or office.",
+        img:"https://images.unsplash.com/photo-1526401485004-2aa7f3e8c9f7?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p6", name:"Everyday Backpack", category:"Fashion", price:1299, mrp:1799, rating:4.4, stock:10, tags:["Laptop sleeve","Water resistant","20L"],
+        desc:"Compact backpack with laptop sleeve and durable fabric.",
+        img:"https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p7", name:"Smart LED Bulb (2 Pack)", category:"Electronics", price:799, mrp:1099, rating:4.1, stock:20, tags:["App control","16M colors","Energy saver"],
+        desc:"Control brightness & colors from phone. Set scenes and schedules.",
+        img:"https://images.unsplash.com/photo-1516542076529-1ea3854896f2?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p8", name:"Ceramic Coffee Mug", category:"Home", price:349, mrp:499, rating:4.0, stock:30, tags:["Microwave safe","330ml","Gloss finish"],
+        desc:"Simple ceramic mug—perfect for coffee, tea, or hot chocolate.",
+        img:"https://images.unsplash.com/photo-1517705008128-361805f42e86?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p9", name:"Wireless Mouse", category:"Electronics", price:599, mrp:899, rating:4.3, stock:22, tags:["Silent click","2.4GHz","Ergonomic"],
+        desc:"Smooth tracking wireless mouse with comfortable ergonomic grip.",
+        img:"https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p10", name:"Bluetooth Speaker", category:"Electronics", price:1199, mrp:1699, rating:4.2, stock:14, tags:["Bass boost","Portable","Type-C"],
+        desc:"Portable speaker with punchy bass and long battery life.",
+        img:"https://images.unsplash.com/photo-1589003077984-894e133dabab?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p11", name:"Cotton T-Shirt (Premium)", category:"Fashion", price:499, mrp:799, rating:4.1, stock:40, tags:["Soft cotton","Regular fit","Comfort"],
+        desc:"Premium cotton T-shirt that looks great and feels comfortable.",
+        img:"https://images.unsplash.com/photo-1520975958225-35c7c0783f78?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p12", name:"Notebook Set (Pack of 3)", category:"Stationery", price:299, mrp:449, rating:4.6, stock:60, tags:["A5 size","Smooth paper","Study ready"],
+        desc:"3 notebooks with smooth paper—ideal for notes and study.",
+        img:"https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p13", name:"Mechanical Keyboard", category:"Electronics", price:1899, mrp:2499, rating:4.5, stock:18, tags:["Tactile keys","RGB","Gaming"],
+        desc:"Mechanical keyboard with comfortable typing feel and RGB lighting.",
+        img:"https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p14", name:"Phone Case (Shockproof)", category:"Electronics", price:299, mrp:499, rating:4.0, stock:50, tags:["Shockproof","Slim","Grip"],
+        desc:"Shockproof phone case with slim design and strong grip.",
+        img:"https://images.unsplash.com/photo-1580915411954-282cb1c96d8c?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p15", name:"Perfume (Long Lasting)", category:"Beauty", price:799, mrp:1199, rating:4.2, stock:25, tags:["Fresh","Long lasting","Daily"],
+        desc:"Fresh fragrance with long lasting effect for everyday use.",
+        img:"https://images.unsplash.com/photo-1523293836415-0b2f1f3c0f2a?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p16", name:"Sunglasses (UV Protected)", category:"Fashion", price:699, mrp:999, rating:4.1, stock:16, tags:["UV 400","Classic","Light"],
+        desc:"Stylish sunglasses with UV protection for outdoor comfort.",
+        img:"https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p17", name:"Yoga Mat (Anti Slip)", category:"Fitness", price:799, mrp:1099, rating:4.4, stock:20, tags:["Anti slip","6mm","Workout"],
+        desc:"Anti-slip yoga mat with good cushioning for workout & yoga.",
+        img:"https://images.unsplash.com/photo-1599447421416-3414500d18a5?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p18", name:"Dumbbell Pair (5kg)", category:"Fitness", price:1299, mrp:1599, rating:4.3, stock:10, tags:["Home gym","Rubber","Grip"],
+        desc:"5kg dumbbell pair for home workout training and strength.",
+        img:"https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p19", name:"Table Lamp (Warm Light)", category:"Home", price:899, mrp:1299, rating:4.2, stock:12, tags:["Warm light","Study","Decor"],
+        desc:"Warm light table lamp for reading, study, and room decor.",
+        img:"https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p20", name:"Cookware Pan (Non-stick)", category:"Home", price:999, mrp:1399, rating:4.1, stock:14, tags:["Non-stick","Easy clean","Durable"],
+        desc:"Non-stick pan for daily cooking with easy cleaning.",
+        img:"https://images.unsplash.com/photo-1543363136-6f7f1fd3bcd8?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p21", name:"Face Wash (Gentle)", category:"Beauty", price:249, mrp:399, rating:4.3, stock:35, tags:["Gentle","Daily use","Fresh"],
+        desc:"Gentle face wash for daily cleansing and freshness.",
+        img:"https://images.unsplash.com/photo-1620916566393-0f32e3f0d83d?auto=format&fit=crop&w=1400&q=70"
+      },
+      { id:"p22", name:"Laptop Stand (Aluminium)", category:"Electronics", price:999, mrp:1499, rating:4.4, stock:17, tags:["Aluminium","Ergonomic","Portable"],
+        desc:"Ergonomic laptop stand for better posture and cooling.",
+        img:"https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1400&q=70"
+      }
+    ];
+
+    /* ===== Helpers ===== */
+    function qs(sel, root){ return (root || document).querySelector(sel); }
+    function esc(str){
+      return String(str).replace(/[&<>"']/g, function(s){
+        return ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" })[s];
+      });
+    }
+    function toast(msg){
+      var t = qs("#toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(function(){ t.classList.remove("show"); }, 1800);
+    }
+    function loadJson(key, fallback){
+      var raw = localStorage.getItem(key);
+      if(!raw) return fallback;
+      try { return JSON.parse(raw); } catch(e){ return fallback; }
+    }
+    function saveJson(key, val){
+      localStorage.setItem(key, JSON.stringify(val));
+    }
+
+    /* ===== State ===== */
+    var products = loadJson(KEY_PRODUCTS, null);
+    if(!products){
+      products = JSON.parse(JSON.stringify(demoProducts));
+      saveJson(KEY_PRODUCTS, products);
+    }
+    var cart = loadJson(KEY_CART, {});
+    var activeProductId = null;
+    var adminLoggedIn = loadJson(KEY_ADMIN, false);
+
+    /* ===== UI refs ===== */
+    var grid = qs("#grid");
+    var qInput = qs("#q");
+    var catSel = qs("#category");
+    var sortSel = qs("#sort");
+
+    var overlay = qs("#overlay");
+    var drawer = qs("#drawer");
+    var cartCount = qs("#cartCount");
+    var cartItemsPill = qs("#cartItemsPill");
+    var cartList = qs("#cartList");
+    var subtotalEl = qs("#subtotal");
+    var cartEmpty = qs("#cartEmpty");
+    var checkoutBox = qs("#checkoutBox");
+
+    // Product modal
+    var modalOverlay = qs("#modalOverlay");
+    var modalClose = qs("#modalClose");
+    var mImg = qs("#mImg");
+    var mTitle = qs("#mTitle");
+    var mCategory = qs("#mCategory");
+    var mRating = qs("#mRating");
+    var mStock = qs("#mStock");
+    var mPrice = qs("#mPrice");
+    var mMrp = qs("#mMrp");
+    var mDesc = qs("#mDesc");
+    var mTags = qs("#mTags");
+
+    // Admin modal
+    var adminOverlay = qs("#adminOverlay");
+    var adminClose = qs("#adminClose");
+    var adminPass = qs("#adminPass");
+    var adminTable = qs("#adminTable");
+
+    var pId = qs("#pId");
+    var pName = qs("#pName");
+    var pCategory = qs("#pCategory");
+    var pImg = qs("#pImg");
+    var pPrice = qs("#pPrice");
+    var pMrp = qs("#pMrp");
+    var pRating = qs("#pRating");
+    var pStock = qs("#pStock");
+    var pTags = qs("#pTags");
+    var pDesc = qs("#pDesc");
+
+    /* ===== Categories ===== */
+    function initCategories(){
+      var cats = ["All"];
+      for(var i=0;i<products.length;i++){
+        if(cats.indexOf(products[i].category) === -1) cats.push(products[i].category);
+      }
+      catSel.innerHTML = "";
+      for(var j=0;j<cats.length;j++){
+        var opt = document.createElement("option");
+        opt.value = cats[j];
+        opt.textContent = cats[j];
+        catSel.appendChild(opt);
+      }
+      catSel.value = "All";
+    }
+
+    function findProduct(pid){
+      for(var i=0;i<products.length;i++){
+        if(products[i].id === pid) return products[i];
+      }
+      return null;
+    }
+
+    /* ===== Filter + Sort ===== */
+    function getList(){
+      var q = (qInput.value || "").trim().toLowerCase();
+      var cat = catSel.value || "All";
+      var out = [];
+
+      for(var i=0;i<products.length;i++){
+        var p = products[i];
+        if(cat !== "All" && p.category !== cat) continue;
+
+        var hay = (p.name + " " + p.desc + " " + (p.tags||[]).join(" ")).toLowerCase();
+        if(q && hay.indexOf(q) === -1) continue;
+
+        out.push(p);
+      }
+
+      var s = sortSel.value;
+      out.sort(function(a,b){
+        if(s === "priceAsc") return a.price - b.price;
+        if(s === "priceDesc") return b.price - a.price;
+        if(s === "nameAsc") return (a.name > b.name) ? 1 : -1;
+        if(b.rating !== a.rating) return b.rating - a.rating;
+        return a.price - b.price;
+      });
+
+      return out;
+    }
+
+    /* ===== Render Products ===== */
+    function renderProducts(){
+      var list = getList();
+      grid.innerHTML = "";
+
+      if(list.length === 0){
+        var empty = document.createElement("div");
+        empty.className = "empty";
+        empty.innerHTML = "<div style='font-weight:950;font-size:16px;margin-bottom:6px;'>No products found</div><div>Try another search/category.</div>";
+        grid.appendChild(empty);
+        return;
+      }
+
+      for(var i=0;i<list.length;i++){
+        (function(p){
+          var card = document.createElement("div");
+          card.className = "card";
+
+          card.innerHTML =
+            "<div class='thumb' tabindex='0'>"+
+              "<img src='"+esc(p.img)+"' alt='"+esc(p.name)+"'>"+
+              "<div class='badge'><span class='dot'></span> Stock: <b>"+p.stock+"</b></div>"+
+            "</div>"+
+            "<div class='content'>"+
+              "<div class='title'>"+esc(p.name)+"</div>"+
+              "<div class='desc'>"+esc(p.desc)+"</div>"+
+              "<div class='row'>"+
+                "<div>"+
+                  "<span class='price'>"+formatINR(p.price)+"</span>"+
+                  " <span class='strike'>"+formatINR(p.mrp)+"</span>"+
+                "</div>"+
+                "<span class='pill'>⭐ "+Number(p.rating).toFixed(1)+"</span>"+
+              "</div>"+
+              "<div class='meta'>"+
+                "<span class='chip'>"+esc(p.category)+"</span>"+
+              "</div>"+
+              "<button class='btn primary' "+(p.stock<=0 ? "disabled" : "")+">Add to Cart</button>"+
+            "</div>";
+
+          var meta = card.querySelector(".meta");
+          var tags = p.tags || [];
+          for(var t=0;t<tags.length && t<2;t++){
+            var chip = document.createElement("span");
+            chip.className = "chip";
+            chip.textContent = tags[t];
+            meta.appendChild(chip);
+          }
+
+          var thumb = card.querySelector(".thumb");
+          thumb.addEventListener("click", function(){ openModal(p.id); });
+          thumb.addEventListener("keydown", function(e){
+            if(e.key === "Enter" || e.key === " ") openModal(p.id);
+          });
+
+          var addBtn = card.querySelector("button");
+          addBtn.addEventListener("click", function(){ addToCart(p.id, 1); });
+
+          grid.appendChild(card);
+        })(list[i]);
+      }
+    }
+
+    /* ===== Cart ===== */
+    function cartCountTotal(){
+      var total = 0;
+      for(var k in cart){ if(cart.hasOwnProperty(k)) total += cart[k]; }
+      return total;
+    }
+    function cartSubtotal(){
+      var total = 0;
+      for(var pid in cart){
+        if(!cart.hasOwnProperty(pid)) continue;
+        var p = findProduct(pid);
+        if(p) total += p.price * cart[pid];
+      }
+      return total;
+    }
+    function addToCart(pid, qty){
+      var p = findProduct(pid);
+      if(!p) return;
+      if(p.stock <= 0) return toast("Out of stock");
+
+      var cur = cart[pid] || 0;
+      var next = cur + qty;
+      if(next > p.stock) return toast("Not enough stock");
+
+      cart[pid] = next;
+      saveJson(KEY_CART, cart);
+      updateCartUI();
+      toast("Added to cart");
+    }
+    function setQty(pid, qty){
+      var p = findProduct(pid);
+      if(!p) return;
+      qty = Math.max(0, Math.min(qty, p.stock));
+      if(qty === 0) delete cart[pid];
+      else cart[pid] = qty;
+      saveJson(KEY_CART, cart);
+      updateCartUI();
+    }
+
+    function updateCartUI(){
+      var count = cartCountTotal();
+      cartCount.textContent = count;
+      cartItemsPill.textContent = count + " item" + (count===1 ? "" : "s");
+      subtotalEl.textContent = formatINR(cartSubtotal());
+
+      cartList.innerHTML = "";
+      var hasItems = false;
+
+      for(var pid in cart){
+        if(!cart.hasOwnProperty(pid)) continue;
+        hasItems = true;
+
+        (function(pidLocal){
+          var qty = cart[pidLocal];
+          var p = findProduct(pidLocal);
+          if(!p) return;
+
+          var item = document.createElement("div");
+          item.className = "cartItem";
+          item.innerHTML =
+            "<img src='"+esc(p.img)+"' alt='"+esc(p.name)+"'>"+
+            "<div>"+
+              "<div class='name'>"+esc(p.name)+"</div>"+
+              "<div class='sub'>"+esc(p.category)+" • ⭐ "+Number(p.rating).toFixed(1)+"</div>"+
+              "<div class='qtyRow'>"+
+                "<div class='qty'>"+
+                  "<button aria-label='Decrease'>−</button>"+
+                  "<span>"+qty+"</span>"+
+                  "<button aria-label='Increase'>+</button>"+
+                "</div>"+
+                "<div style='text-align:right;'>"+
+                  "<div style='font-weight:950;'>"+formatINR(p.price * qty)+"</div>"+
+                  "<button class='btn danger' style='padding:6px 10px;border-radius:999px;margin-top:6px;'>Remove</button>"+
+                "</div>"+
+              "</div>"+
+            "</div>";
+
+          var btns = item.querySelectorAll(".qty button");
+          var removeBtn = item.querySelector(".btn.danger");
+
+          btns[0].addEventListener("click", function(){ setQty(pidLocal, (cart[pidLocal]||0) - 1); });
+          btns[1].addEventListener("click", function(){ setQty(pidLocal, (cart[pidLocal]||0) + 1); });
+          removeBtn.addEventListener("click", function(){ setQty(pidLocal, 0); });
+
+          cartList.appendChild(item);
+        })(pid);
+      }
+
+      cartEmpty.style.display = hasItems ? "none" : "block";
+      if(!hasItems) checkoutBox.classList.remove("show");
+    }
+
+    /* ===== Drawer ===== */
+    function openCart(){
+      overlay.classList.add("show");
+      drawer.classList.add("show");
+      document.body.style.overflow = "hidden";
+    }
+    function closeCart(){
+      overlay.classList.remove("show");
+      drawer.classList.remove("show");
+      document.body.style.overflow = "";
+    }
+
+    /* ===== Product Modal ===== */
+    function openModal(pid){
+      var p = findProduct(pid);
+      if(!p) return;
+      activeProductId = pid;
+
+      mImg.src = p.img;
+      mImg.alt = p.name;
+      mTitle.textContent = p.name;
+      mCategory.textContent = p.category;
+      mRating.textContent = "⭐ " + Number(p.rating).toFixed(1);
+      mStock.textContent = "Stock: " + p.stock;
+      mPrice.textContent = formatINR(p.price);
+      mMrp.textContent = " " + formatINR(p.mrp);
+      mDesc.textContent = p.desc;
+
+      mTags.innerHTML = "";
+      var tags = p.tags || [];
+      for(var i=0;i<tags.length;i++){
+        var chip = document.createElement("span");
+        chip.className = "pill";
+        chip.textContent = tags[i];
+        mTags.appendChild(chip);
+      }
+
+      modalOverlay.classList.add("show");
+      document.body.style.overflow = "hidden";
+    }
+    function closeModal(){
+      modalOverlay.classList.remove("show");
+      document.body.style.overflow = drawer.classList.contains("show") ? "hidden" : "";
+    }
+
+    /* ===== Checkout / Orders ===== */
+    function validateCheckout(){
+      var name = (qs("#ckName").value || "").trim();
+      var phone = (qs("#ckPhone").value || "").trim();
+      var address = (qs("#ckAddress").value || "").trim();
+      if(!name) return "Enter name";
+      if(!/^[0-9]{10}$/.test(phone)) return "Enter 10-digit phone";
+      if(address.length < 8) return "Enter valid address";
+      return null;
+    }
+    function placeOrder(){
+      var err = validateCheckout();
+      if(err) return toast(err);
+      if(cartCountTotal() === 0) return toast("Cart is empty");
+
+      var items = [];
+      for(var pid in cart){
+        if(!cart.hasOwnProperty(pid)) continue;
+        var p = findProduct(pid);
+        if(p) items.push({ pid: pid, name: p.name, price: p.price, qty: cart[pid] });
+      }
+
+      var order = {
+        id: "ORD-" + Math.random().toString(16).slice(2,8).toUpperCase(),
+        at: new Date().toISOString(),
+        customer: {
+          name: (qs("#ckName").value || "").trim(),
+          phone: (qs("#ckPhone").value || "").trim(),
+          address: (qs("#ckAddress").value || "").trim(),
+          pay: qs("#ckPay").value
+        },
+        items: items,
+        total: cartSubtotal()
+      };
+
+      // reduce stock demo
+      for(var i=0;i<products.length;i++){
+        var p2 = products[i];
+        var q = cart[p2.id] || 0;
+        if(q>0) p2.stock = Math.max(0, p2.stock - q);
+      }
+      saveJson(KEY_PRODUCTS, products);
+
+      var orders = loadJson(KEY_ORDERS, []);
+      orders.unshift(order);
+      saveJson(KEY_ORDERS, orders);
+
+      cart = {};
+      saveJson(KEY_CART, cart);
+
+      updateCartUI();
+      renderProducts();
+      checkoutBox.classList.remove("show");
+      toast("Order placed ✅ " + order.id);
+    }
+
+    function showOrders(){
+      var orders = loadJson(KEY_ORDERS, []);
+      if(!orders.length){ alert("No orders yet."); return; }
+
+      var text = "";
+      for(var i=0;i<orders.length && i<8;i++){
+        var o = orders[i];
+        var dt = new Date(o.at);
+        text += "Order: " + o.id + "\n";
+        text += "Date: " + dt.toLocaleString() + "\n";
+        text += "Payment: " + o.customer.pay + "\n";
+        text += "Total: " + formatINR(o.total) + "\n";
+        text += "Items:\n";
+        for(var j=0;j<o.items.length;j++){
+          var it = o.items[j];
+          text += "- " + it.name + " x" + it.qty + " = " + formatINR(it.price*it.qty) + "\n";
+        }
+        text += "\n------------------------\n\n";
+      }
+      alert(text);
+    }
+
+    /* ===== Admin ===== */
+    function openAdmin(){
+      adminOverlay.classList.add("show");
+      document.body.style.overflow = "hidden";
+      renderAdminTable();
+      setAdminButtons();
+    }
+    function closeAdmin(){
+      adminOverlay.classList.remove("show");
+      document.body.style.overflow = drawer.classList.contains("show") || modalOverlay.classList.contains("show") ? "hidden" : "";
+    }
+
+    function setAdminButtons(){
+      qs("#btnAdminLogout").style.display = adminLoggedIn ? "inline-flex" : "none";
+      qs("#btnSaveProduct").disabled = !adminLoggedIn;
+      qs("#btnResetDemo").disabled = !adminLoggedIn;
+    }
+
+    function adminLogin(){
+      var pass = (adminPass.value || "").trim();
+      if(pass !== ADMIN_PASSWORD) return toast("Wrong password");
+      adminLoggedIn = true;
+      saveJson(KEY_ADMIN, true);
+      toast("Admin logged in ✅");
+      setAdminButtons();
+      renderAdminTable();
+    }
+    function adminLogout(){
+      adminLoggedIn = false;
+      saveJson(KEY_ADMIN, false);
+      toast("Logged out");
+      setAdminButtons();
+    }
+
+    function clearForm(){
+      pId.value = "";
+      pName.value = "";
+      pCategory.value = "";
+      pImg.value = "";
+      pPrice.value = "";
+      pMrp.value = "";
+      pRating.value = "";
+      pStock.value = "";
+      pTags.value = "";
+      pDesc.value = "";
+    }
+
+    function fillForm(prod){
+      pId.value = prod.id;
+      pName.value = prod.name;
+      pCategory.value = prod.category;
+      pImg.value = prod.img;
+      pPrice.value = prod.price;
+      pMrp.value = prod.mrp;
+      pRating.value = prod.rating;
+      pStock.value = prod.stock;
+      pTags.value = (prod.tags || []).join(", ");
+      pDesc.value = prod.desc;
+      toast("Loaded for edit ✏️");
+    }
+
+    function saveProduct(){
+      if(!adminLoggedIn) return toast("Admin login required");
+      var name = (pName.value || "").trim();
+      var cat = (pCategory.value || "").trim();
+      var img = (pImg.value || "").trim();
+      var desc = (pDesc.value || "").trim();
+
+      if(!name || !cat || !img || !desc) return toast("Fill name, category, image, description");
+
+      var obj = {
+        id: (pId.value || "").trim() || ("p" + (Date.now())),
+        name: name,
+        category: cat,
+        img: img,
+        desc: desc,
+        price: Number(pPrice.value || 0),
+        mrp: Number(pMrp.value || 0),
+        rating: Math.max(0, Math.min(5, Number(pRating.value || 0))),
+        stock: Math.max(0, Number(pStock.value || 0)),
+        tags: (pTags.value || "").split(",").map(function(x){ return x.trim(); }).filter(Boolean)
+      };
+
+      // update if exists else add
+      var idx = -1;
+      for(var i=0;i<products.length;i++){
+        if(products[i].id === obj.id){ idx = i; break; }
+      }
+      if(idx >= 0) products[idx] = obj;
+      else products.unshift(obj);
+
+      saveJson(KEY_PRODUCTS, products);
+      initCategories();
+      renderProducts();
+      renderAdminTable();
+      clearForm();
+      toast("Product saved ✅");
+    }
+
+    function deleteProduct(pid){
+      if(!adminLoggedIn) return toast("Admin login required");
+      if(!confirm("Delete product " + pid + " ?")) return;
+      products = products.filter(function(p){ return p.id !== pid; });
+      saveJson(KEY_PRODUCTS, products);
+
+      // also remove from cart if present
+      if(cart[pid]){ delete cart[pid]; saveJson(KEY_CART, cart); updateCartUI(); }
+
+      initCategories();
+      renderProducts();
+      renderAdminTable();
+      toast("Deleted ✅");
+    }
+
+    function renderAdminTable(){
+      adminTable.innerHTML = "";
+      var thead = "<tr><th>ID</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Actions</th></tr>";
+      adminTable.insertAdjacentHTML("beforeend", thead);
+
+      for(var i=0;i<products.length;i++){
+        (function(p){
+          var tr = document.createElement("tr");
+          tr.innerHTML =
+            "<td class='small'>"+esc(p.id)+"</td>"+
+            "<td><b>"+esc(p.name)+"</b><div class='small'>⭐ "+Number(p.rating).toFixed(1)+" • MRP "+formatINR(p.mrp)+"</div></td>"+
+            "<td>"+esc(p.category)+"</td>"+
+            "<td>"+formatINR(p.price)+"</td>"+
+            "<td>"+p.stock+"</td>"+
+            "<td>"+
+              "<button class='btn ok' style='padding:6px 10px;border-radius:999px;'>Edit</button> "+
+              "<button class='btn danger' style='padding:6px 10px;border-radius:999px;'>Delete</button>"+
+            "</td>";
+
+          var btns = tr.querySelectorAll("button");
+          btns[0].addEventListener("click", function(){ fillForm(p); });
+          btns[1].addEventListener("click", function(){ deleteProduct(p.id); });
+
+          adminTable.appendChild(tr);
+        })(products[i]);
+      }
+    }
+
+    function resetDemo(){
+      if(!adminLoggedIn) return toast("Admin login required");
+      if(!confirm("Reset to demo products? This will overwrite saved products.")) return;
+      products = JSON.parse(JSON.stringify(demoProducts));
+      saveJson(KEY_PRODUCTS, products);
+      cart = {};
+      saveJson(KEY_CART, cart);
+      initCategories();
+      renderProducts();
+      updateCartUI();
+      renderAdminTable();
+      clearForm();
+      toast("Reset done ✅");
+    }
+
+    /* ===== Events ===== */
+    qs("#btnCart").addEventListener("click", openCart);
+    qs("#btnCloseCart").addEventListener("click", closeCart);
+    qs("#btnCheckout").addEventListener("click", function(){
+      if(cartCountTotal() === 0) return toast("Cart is empty");
+      checkoutBox.classList.toggle("show");
+      if(checkoutBox.classList.contains("show")) qs("#ckName").focus();
+    });
+    qs("#btnPlaceOrder").addEventListener("click", placeOrder);
+    qs("#btnClearCart").addEventListener("click", function(){
+      cart = {};
+      saveJson(KEY_CART, cart);
+      updateCartUI();
+      toast("Cart cleared");
+    });
+    qs("#btnOrders").addEventListener("click", showOrders);
+
+    overlay.addEventListener("click", closeCart);
+
+    modalClose.addEventListener("click", closeModal);
+    modalOverlay.addEventListener("click", function(e){
+      if(e.target === modalOverlay) closeModal();
+    });
+
+    qs("#btnModalAdd").addEventListener("click", function(){
+      if(activeProductId) addToCart(activeProductId, 1);
+    });
+    qs("#btnModalCart").addEventListener("click", function(){
+      closeModal();
+      openCart();
+    });
+
+    // Admin events
+    qs("#btnAdmin").addEventListener("click", openAdmin);
+    adminClose.addEventListener("click", closeAdmin);
+    qs("#btnAdminLogin").addEventListener("click", adminLogin);
+    qs("#btnAdminLogout").addEventListener("click", adminLogout);
+    qs("#btnSaveProduct").addEventListener("click", saveProduct);
+    qs("#btnClearForm").addEventListener("click", clearForm);
+    qs("#btnResetDemo").addEventListener("click", resetDemo);
+
+    adminOverlay.addEventListener("click", function(e){
+      if(e.target === adminOverlay) closeAdmin();
+    });
+
+    qInput.addEventListener("input", renderProducts);
+    catSel.addEventListener("change", renderProducts);
+    sortSel.addEventListener("change", renderProducts);
+
+    window.addEventListener("keydown", function(e){
+      if(e.key === "Escape"){
+        if(adminOverlay.classList.contains("show")) closeAdmin();
+        else if(modalOverlay.classList.contains("show")) closeModal();
+        else if(drawer.classList.contains("show")) closeCart();
+      }
+    });
+
+    /* ===== Boot ===== */
+    initCategories();
+    renderProducts();
+    updateCartUI();
+    setAdminButtons();
+
+    /* If you ever face weird issues due to old saved data:
+       localStorage.clear(); location.reload();
+    */
+  </script>
+</body>
+</html>
